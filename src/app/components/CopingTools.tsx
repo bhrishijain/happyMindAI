@@ -360,8 +360,8 @@ export default function CopingTools({ settings }: CopingToolsProps) {
             <h3 style={{ fontSize: "1rem", fontWeight: 600, marginBottom: "0.75rem" }}>
               🔊 Local Focus Sound Synthesizer
             </h3>
-            <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
-              Generates non-looping continuous audio frequencies in your browser for deep isolation.
+            <p style={{ fontSize: "0.78rem", color: "var(--text-secondary)", marginBottom: "0.75rem" }}>
+              Continuous offline background noise for study isolation.
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.5rem" }}>
               <button 

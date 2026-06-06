@@ -516,12 +516,41 @@ input:focus, textarea:focus, select:focus {
   }
   
   .main-content {
-    padding: 1rem 1rem 5rem 1rem !important; /* Extra bottom padding for mobile bottom bar */
+    padding: 1rem 1rem 5.5rem 1rem !important; /* Extra bottom padding for mobile bottom bar */
   }
   
   .desktop-only {
     display: none !important;
   }
+
+  /* Mobile accessibility & tap targets */
+  button, input, select, .btn, .bottom-nav-link {
+    min-height: 44px; /* standard mobile tap target */
+  }
+
+  .glass-panel {
+    padding: 1rem !important;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Force responsive grid layouts to collapse to single column on mobile */
+  div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+    gap: 0.75rem !important;
+  }
+
+  /* Allow two columns for grid buttons and quick options */
+  div[style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  div[style*="grid-template-columns: repeat(auto-fit, minmax(170px, 1fr))"] {
+    grid-template-columns: 1fr 1fr !important;
+  }
+
+  h1 { font-size: 1.35rem !important; }
+  h2 { font-size: 1.15rem !important; }
+  h3 { font-size: 1.0rem !important; }
 }
 
 /* Dark Mode Overrides for light-coded inline styling elements */

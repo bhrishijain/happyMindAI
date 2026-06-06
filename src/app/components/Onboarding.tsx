@@ -140,8 +140,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "0.5rem", color: "#0f172a" }}>
                   Hey there! 👋
                 </h2>
-                <p style={{ color: "#64748b", fontSize: "0.95rem", lineHeight: 1.45 }}>
-                  Welcome to your personal exam wellness companion. Let&apos;s set up your profile so we can support you.
+                <p style={{ color: "#64748b", fontSize: "0.9rem", lineHeight: 1.4 }}>
+                  Personal exam wellness companion. Let&apos;s quickly set up your profile.
                 </p>
               </div>
               <div>
@@ -174,8 +174,8 @@ export default function Onboarding({ onComplete }: OnboardingProps) {
                 <h2 style={{ fontSize: "1.4rem", fontWeight: 800, marginBottom: "0.35rem", color: "#0f172a" }}>
                   Which exam are you targeting, {name}?
                 </h2>
-                <p style={{ color: "#64748b", fontSize: "0.9rem" }}>
-                  We&apos;ll display your countdown and motivational tips accordingly.
+                <p style={{ color: "#64748b", fontSize: "0.85rem" }}>
+                  Set up your target countdown.
                 </p>
               </div>
 

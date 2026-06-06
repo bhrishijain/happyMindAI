@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "npx tsx src/app/utils/wellbeing.test.ts && npx tsx src/app/utils/goalEngine.test.ts"
   },
   "dependencies": {
     "next": "16.2.7",

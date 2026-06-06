@@ -450,10 +450,10 @@ export default function Dashboard({ profile, assessments, onNavigate }: Dashboar
               ? `✅ Today's assessment is complete, ${profile.name}!`
               : `📋 Start today's Daily Wellness Assessment`}
           </h2>
-          <p style={{ color: "#64748b", fontSize: "0.9rem", lineHeight: 1.5 }}>
+          <p style={{ color: "#64748b", fontSize: "0.85rem", lineHeight: 1.4 }}>
             {loggedToday
-              ? `Your focus today: "${latestAssessment?.focusGoal}". Remember to take short breaks.`
-              : `A quick 7-question check-in tracks your mood, anxiety, sleep, and more — takes under a minute.`}
+              ? `Daily focus: "${latestAssessment?.focusGoal}". Track your habits daily.`
+              : `Check your mood, anxiety, and sleep. Takes under a minute.`}
           </p>
         </div>
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>

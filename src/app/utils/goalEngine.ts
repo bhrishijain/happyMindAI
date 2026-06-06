@@ -55,7 +55,7 @@ export function generateGoalRecommendation(
       resolvedGoal = "Better Focus";
     } else if (lower.includes("confidence") || lower.includes("doubt") || lower.includes("comparison") || lower.includes("parent")) {
       resolvedGoal = "Build Confidence";
-    } else if (lower.includes("sleep") || lower.includes("rest") || lower.includes("fatigue") || lower.includes("tired")) {
+    } else if (lower.includes("sleep") || lower.includes("rest") || lower.includes("fatigue") || lower.includes("tired") || lower.includes("insomnia") || lower.includes("bed")) {
       resolvedGoal = "Improve Sleep";
     } else if (lower.includes("motivate") || lower.includes("drive") || lower.includes("streak") || lower.includes("lack")) {
       resolvedGoal = "Stay Motivated";
@@ -95,18 +95,18 @@ export function generateGoalRecommendation(
         scoreLabel: "Focus Score",
         scoreValue,
         suggestions: [
-          "Use Pomodoro study sessions (e.g. 50 minutes study, 10 minutes break).",
-          "Disable notifications and put away distractions during study blocks.",
-          "Prioritize a single major concept or subject per session.",
-          "Take structured physical breaks (away from screens) to refresh the mind."
+          "Use 50/10 Pomodoro sessions.",
+          "Mute notifications during study blocks.",
+          "Focus on one subject per session.",
+          "Take physical, screen-free breaks."
         ],
         aiInsights: [
           avgStudy > 9 
-            ? "AI Insight: Your study blocks exceed 9 hours daily. Focus efficiency drops significantly after 3 consecutive hours of math/logic sessions." 
-            : "AI Insight: Setting short 45-minute sprint goals has stabilized your topic retention stats.",
+            ? "AI Insight: Study exceeds 9h daily. Take longer breaks to avoid brain fatigue." 
+            : "AI Insight: Your 45-minute study sprints have improved retention.",
           avgSleep > 7
-            ? "AI Insight: Focus and attention spans improve by 25% when your sleep logs exceed 7 hours."
-            : "AI Insight: Low sleep duration this week is causing minor focus lapses during morning studies."
+            ? "AI Insight: Sleeping 7h+ improves your focus by 25%."
+            : "AI Insight: Under 7h sleep is causing minor focus lapses."
         ],
         quickActions: [
           { label: "Start Focus Timer", actionKey: "tools", icon: "⏱️" },
@@ -130,14 +130,14 @@ export function generateGoalRecommendation(
         scoreLabel: "Calmness Index",
         scoreValue,
         suggestions: [
-          "Incorporate deep box-breathing cycles for 2 minutes when stress peaks.",
-          "Practice guided calming soundscapes or brown noise during study sessions.",
-          "Focus entirely on tasks you can control today; dump future worries.",
-          "Actively challenge negative self-talk regarding exam scores."
+          "Do deep breathing when stress peaks.",
+          "Use brown noise or soundscapes.",
+          "Focus only on today's tasks.",
+          "Challenge negative exam score worries."
         ],
         aiInsights: [
-          `AI Insight: "${topConcern}" is currently identified as your primary source of examination pressure.`,
-          "AI Insight: Anxiety spikes by 35% on days where study duration exceeds 10 hours without a 30-minute outdoor break."
+          `AI Insight: "${topConcern}" is your main stress trigger.`,
+          "AI Insight: 10h+ study without outdoor breaks spikes anxiety."
         ],
         quickActions: [
           { label: "Start Calming Breathing", actionKey: "relief", icon: "🧘" },
@@ -155,14 +155,14 @@ export function generateGoalRecommendation(
         scoreLabel: "Confidence Level",
         scoreValue,
         suggestions: [
-          "Review previously completed chapters and notes to remind yourself of your knowledge.",
-          "Celebrate minor milestones (e.g. solving 5 difficult problems in a row).",
-          "Focus on personal progress ratios rather than comparing ranks with peers.",
-          "Acknowledge test failures as conceptual checkpoints, not character marks."
+          "Review past notes to see your progress.",
+          "Celebrate minor study milestones.",
+          "Focus on self-progress, not peer ranks.",
+          "See test failures as practice checkpoints."
         ],
         aiInsights: [
-          "AI Insight: Your confidence index demonstrates a 20% upward trend after completing active topic revisions.",
-          "AI Insight: Peer comparison references appear frequently in your concern logs, contributing to self-doubt."
+          "AI Insight: Topic revisions boosted your confidence by 20%.",
+          "AI Insight: Peer comparison logs are boosting self-doubt."
         ],
         quickActions: [
           { label: "Read Mindset Affirmations", actionKey: "relief", icon: "✨" },
@@ -181,14 +181,14 @@ export function generateGoalRecommendation(
         scoreLabel: "Sleep Quality Score",
         scoreValue,
         suggestions: [
-          "Maintain a strictly consistent sleep and wake schedule.",
-          "Disconnect from all screens (laptops, phones) 45 minutes before sleep.",
-          "Avoid late-night study sessions that disrupt circadian rhythms.",
-          "Establish a calming wind-down checklist (dim lights, stretching, reading)."
+          "Sleep and wake at consistent times.",
+          "Ditch screens 45 mins before bedtime.",
+          "Avoid late studies that disrupt sleep.",
+          "Establish a dim wind-down routine."
         ],
         aiInsights: [
-          "AI Insight: Mood scores improve by 30% on average when your sleep duration reaches 7.5+ hours.",
-          "AI Insight: Anxiety logs demonstrate a distinct rise following nights with under 6 hours of sleep."
+          "AI Insight: Sleeping 7.5h+ improved mood scores by 30%.",
+          "AI Insight: Anxiety rises after sleep logs drop below 6h."
         ],
         quickActions: [
           { label: "Start Sleep Wind-Down", actionKey: "relief", icon: "🛌" },
@@ -208,14 +208,14 @@ export function generateGoalRecommendation(
         scoreLabel: "Drive Index",
         scoreValue,
         suggestions: [
-          "Deconstruct complex syllabi into bite-sized, non-threatening daily milestones.",
-          "Keep a checklist of completed mock tasks and track study streaks.",
-          "Reflect on why you chose this path and visualize your future goal achievements.",
-          "Set realistic daily study targets to prevent chronic exhaustion."
+          "Break syllabi into small daily targets.",
+          "Track study streaks and task updates.",
+          "Visualize your goals to boost drive.",
+          "Set realistic study targets to avoid burnout."
         ],
         aiInsights: [
-          "AI Insight: Log consistency has improved by 15% this week, showing steady mindset tracking.",
-          "AI Insight: High motivation scores correlate directly with structured 50-minute study blocks."
+          "AI Insight: Log tracking is up 15% this week.",
+          "AI Insight: Motivation is highest with 50-min study blocks."
         ],
         quickActions: [
           { label: "Read Study Motivation", actionKey: "relief", icon: "🚀" },
@@ -247,16 +247,16 @@ export function generateGoalRecommendation(
         scoreLabel: "Life Balance Score",
         scoreValue,
         suggestions: [
-          "Pace your studies: study blocks should have breaks to prevent academic stress.",
-          "Incorporate 20 minutes of daily physical stretch or cardiovascular exercise.",
-          "Ensure you connect with family or peers for non-academic conversations daily.",
-          "Avoid the temptation of overstudying past midnight."
+          "Pace study blocks with regular breaks.",
+          "Do 20 mins of daily exercise/stretching.",
+          "Talk daily with family or peers.",
+          "Avoid studying past midnight."
         ],
         aiInsights: [
           avgStudy > 11 
-            ? "AI Insight: Your study hours are extreme (11+ hours). Stress levels are climbing due to lack of rest blocks." 
-            : "AI Insight: Study and sleep ratios are currently balanced within stable prep parameters.",
-          "AI Insight: Daily balance improves when sleep, eating, and study blocks are aligned."
+            ? "AI Insight: Extreme study hours (11h+). Take breaks now." 
+            : "AI Insight: Study/sleep ratios are in good balance.",
+          "AI Insight: Keep sleep and study times aligned."
         ],
         quickActions: [
           { label: "Review Daily Study Plan", actionKey: "relief", icon: "📝" },
@@ -272,10 +272,10 @@ export function generateGoalRecommendation(
     scoreLabel: "Focus Score",
     scoreValue: 70,
     suggestions: [
-      "Use Pomodoro study sessions (e.g. 50 minutes study, 10 minutes break).",
-      "Disable notifications and put away distractions during study blocks."
+      "Use 50/10 Pomodoro sessions.",
+      "Mute notifications during study blocks."
     ],
-    aiInsights: ["Calibrating your focus parameters..."],
+    aiInsights: ["Calibrating parameters..."],
     quickActions: [
       { label: "Start Focus Timer", actionKey: "tools", icon: "⏱️" }
     ]

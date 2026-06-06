@@ -328,12 +328,12 @@ export default function InstantRelief({ profile, assessments, onNavigate, onUpda
       <div style={{
         background: "linear-gradient(135deg, hsl(250 84% 54%) 0%, hsl(280 80% 65%) 100%)",
         color: "white",
-        padding: "1.75rem 2rem",
+        padding: "1.25rem 1.5rem",
         borderRadius: "var(--radius-lg)"
       }}>
-        <h2 style={{ fontSize: "1.5rem", fontWeight: 800, marginBottom: "0.35rem" }}>🤖 Interactive AI Wellness Coach</h2>
-        <p style={{ fontSize: "0.9rem", opacity: 0.9, lineHeight: 1.45 }}>
-          Select a mindset area where you need help today. The engine calibrates suggestions, checklists, and breathing sessions based on your profile inputs.
+        <h2 style={{ fontSize: "1.35rem", fontWeight: 800, marginBottom: "0.25rem" }}>🤖 Interactive AI Wellness Coach</h2>
+        <p style={{ fontSize: "0.85rem", opacity: 0.9, lineHeight: 1.4 }}>
+          Select an area to focus on. We'll calibrate custom checklists and breathing guides for you.
         </p>
       </div>
 
@@ -434,11 +434,11 @@ export default function InstantRelief({ profile, assessments, onNavigate, onUpda
         {/* Right Column: Interactive Wellness Actions */}
         <div className="glass-panel" style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "1.5rem" }}>
           <div>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "0.5rem" }}>
-              🎯 Mindset Action & Interactive Tool
+            <h3 style={{ fontSize: "1rem", fontWeight: 700, marginBottom: "0.4rem" }}>
+              🎯 Interactive Wellness Tool
             </h3>
-            <p style={{ fontSize: "0.85rem", color: "var(--text-secondary)", marginBottom: "1.5rem" }}>
-              Engage with this dynamic module to calm anxiety or build cognitive focus.
+            <p style={{ fontSize: "0.8rem", color: "var(--text-secondary)", marginBottom: "1rem" }}>
+              Use this exercise to calm anxiety or build focus.
             </p>
 
             {renderActiveWidget()}
