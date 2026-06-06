@@ -27,6 +27,23 @@
   --radius-lg: 20px;
 }
 
+/* Premium Dark Theme Colors */
+.dark {
+  --bg-primary: #090d16;
+  --bg-card: #131b2e;
+  --bg-accent: #1e1b4b;
+  --border-color: #1e293b;
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  
+  --primary: 250 84% 65%;
+  --primary-glow: rgba(129, 140, 248, 0.15);
+  --success: 142 76% 45%;
+  --warning: 38 92% 60%;
+  --danger: 0 84% 68%;
+  --info: 199 89% 58%;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
@@ -286,7 +303,7 @@ body {
 input, textarea, select {
   width: 100%;
   padding: 0.75rem 1rem;
-  background: #ffffff;
+  background: var(--bg-card);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   color: var(--text-primary);
@@ -506,4 +523,60 @@ input:focus, textarea:focus, select:focus {
     display: none !important;
   }
 }
+
+/* Dark Mode Overrides for light-coded inline styling elements */
+.dark div[style*="background: #ffffff"], 
+.dark div[style*="background: white"],
+.dark div[style*="background-color: #ffffff"],
+.dark div[style*="background-color: white"] {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark button[style*="background: white"],
+.dark button[style*="background: #ffffff"],
+.dark button[style*="background-color: white"],
+.dark button[style*="background-color: #ffffff"] {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+.dark div[style*="background: rgb(255, 255, 255)"],
+.dark button[style*="background: rgb(255, 255, 255)"] {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark input[style*="background: white"],
+.dark input[style*="background: #ffffff"] {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+.dark p, .dark label, .dark span, .dark h1, .dark h2, .dark h3, .dark h4 {
+  color: var(--text-primary) !important;
+}
+
+.dark p[style*="color: rgb(100, 116, 139)"], 
+.dark p[style*="color: #64748b"],
+.dark span[style*="color: rgb(100, 116, 139)"],
+.dark span[style*="color: #64748b"],
+.dark span[style*="color: var(--text-secondary)"],
+.dark label[style*="color: rgb(100, 116, 139)"],
+.dark label[style*="color: #64748b"] {
+  color: var(--text-secondary) !important;
+}
+
+.dark button[style*="color: rgb(71, 85, 105)"],
+.dark button[style*="color: #475569"] {
+  color: var(--text-secondary) !important;
+}
+
+.dark .chat-bubble-buddy {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+}
+
 

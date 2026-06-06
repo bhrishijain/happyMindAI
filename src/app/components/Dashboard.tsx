@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { StudentProfile } from "./Onboarding";
 import { FirebaseAssessmentEntry } from "../utils/firestore";
 import { getQuoteForExam } from "../utils/wellbeing";
+import { generateGoalRecommendation, GoalType } from "../utils/goalEngine";
 
 interface DashboardProps {
   profile: StudentProfile;
@@ -124,8 +125,19 @@ export default function Dashboard({ profile, assessments, onNavigate }: Dashboar
     return () => clearInterval(interval);
   }, [breatheActive, breatheType]);
 
-  const renderFocusActionCard = () => {
-    // 1. Breathing exercises for anxiety or focus
+  // Compute recommendations dynamically using our GoalRecommendationEngine
+  const recommendation = generateGoalRecommendation(activeFocus as GoalType, assessments, profile);
+
+  const getMetricColor = (val: number) => {
+    if (activeFocus === "Reduce Anxiety") {
+      // For anxiety score, higher calmness is better
+      return val >= 70 ? "#16a34a" : val >= 50 ? "#d97706" : "#dc2626";
+    }
+    return val >= 75 ? "#16a34a" : val >= 55 ? "#d97706" : "#dc2626";
+  };
+
+  const renderActiveWidget = () => {
+    // 🧘 Breathing Visuals
     if (activeFocus === "Better Focus" || activeFocus === "Reduce Anxiety") {
       const getBreatheScale = () => {
         if (breatheState.phase === "Inhale") return "scale(1.25)";
@@ -135,26 +147,9 @@ export default function Dashboard({ profile, assessments, onNavigate }: Dashboar
         return "scale(1)";
       };
 
-      const breatheDescriptions: Record<string, string> = {
-        box: "Box Breathing (4-4-4-4): Excellent for calming the nervous system, clearing conceptual fog, and pacing brain logic.",
-        "478": "4-7-8 Breathing (4-7-8): A deep relaxation exercise that activates the parasympathetic nerve to drop anxiety levels immediately.",
-        equal: "Equal Breathing (4-4): Balances breathing rhythms, settles rapid heart rate, and resets thoughts before studies.",
-        calm: "Deep Calm (5-2-5): Extended in-and-out pacing that releases carbon dioxide and calms the amygdala."
-      };
-
       return (
-        <div className="glass-panel" style={{ borderLeft: "5px solid hsl(var(--primary))", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <div>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: 800, marginBottom: "0.25rem", color: "#0f172a" }}>
-              🧘 Breathing Exercise Routine
-            </h3>
-            <p style={{ fontSize: "0.85rem", color: "#64748b" }}>
-              Tailored support to manage exam anxiety, reduce study strain, and improve concentration.
-            </p>
-          </div>
-
-          {/* Sub-types selection */}
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.25rem", margin: "0.5rem 0" }}>
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "0.4rem" }}>
             {(["box", "478", "equal", "calm"] as const).map((type) => {
               const labels = { box: "Box (4-4-4-4)", "478": "4-7-8 Relax", equal: "Equal (4-4)", calm: "Deep Calm (5-2-5)" };
               return (
@@ -162,7 +157,7 @@ export default function Dashboard({ profile, assessments, onNavigate }: Dashboar
                   key={type}
                   className={`btn ${breatheType === type ? "btn-primary" : "btn-secondary"}`}
                   onClick={() => setBreatheType(type)}
-                  style={{ padding: "0.4rem 0.8rem", fontSize: "0.8rem", borderRadius: "20px" }}
+                  style={{ padding: "0.35rem 0.75rem", fontSize: "0.75rem", borderRadius: "20px" }}
                 >
                   {labels[type]}
                 </button>
@@ -170,224 +165,176 @@ export default function Dashboard({ profile, assessments, onNavigate }: Dashboar
             })}
           </div>
 
-          <p style={{ fontSize: "0.82rem", color: "#475569", lineHeight: 1.4, minHeight: "34px" }}>
-            💡 <em>{breatheDescriptions[breatheType]}</em>
-          </p>
-
-          {/* Interactive Breathing Ring */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", margin: "0.5rem 0" }}>
-            <div style={{
-              width: "140px", height: "140px", borderRadius: "50%",
-              background: "hsl(var(--primary) / 0.05)",
-              border: "2px dashed hsl(var(--primary) / 0.25)",
-              display: "flex", alignItems: "center", justifyContent: "center"
-            }}>
-              <div style={{
-                width: "90px", height: "90px", borderRadius: "50%",
-                background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))",
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                color: "white", fontWeight: 700, fontSize: "0.85rem",
-                transition: "transform 1s ease-in-out",
-                transform: getBreatheScale()
-              }}>
-                {breatheActive ? (
-                  <>
-                    <span style={{ fontSize: "0.7rem", opacity: 0.9 }}>{breatheState.phase}</span>
-                    <span style={{ fontSize: "1.35rem", fontWeight: 800 }}>{breatheState.seconds}s</span>
-                  </>
-                ) : (
-                  <span>Ready</span>
-                )}
-              </div>
-            </div>
-
-            <button
-              className={`btn ${breatheActive ? "btn-secondary" : "btn-primary"}`}
-              onClick={() => setBreatheActive(!breatheActive)}
-              style={{ width: "160px", padding: "0.5rem 1rem", fontSize: "0.85rem" }}
-            >
-              {breatheActive ? "Stop Exercise" : "Start Breathing"}
-            </button>
-          </div>
-        </div>
-      );
-    }
-
-    // 2. Affirmations for Confidence
-    if (activeFocus === "Build Confidence") {
-      const affirmations = [
-        "I have prepared diligently. I trust my logic, memory, and conceptual knowledge.",
-        "My scores do not define my self-worth. I will give my sincere effort today.",
-        "I am calm, centered, and capable of solving complex questions step-by-step.",
-        "Practice mistakes are pathways to correct my gaps. I welcome hard questions to learn.",
-        "I have the strength to guide my mind through test anxiety. I choose clarity.",
-        "My concentration is sharp, and my confidence is growing stronger with every study block."
-      ];
-
-      return (
-        <div className="glass-panel" style={{ borderLeft: "5px solid #16a34a", display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginBottom: "0.25rem" }}>
-              ✨ Confidence Mindset Affirmation
-            </h3>
-            <p style={{ fontSize: "0.85rem", color: "#64748b" }}>
-              Repeat this focus routine to override mock exam self-doubt and peer comparisons.
-            </p>
-          </div>
-
           <div style={{
-            background: "linear-gradient(135deg, #f0fdf4 0%, #f6fef9 100%)",
-            border: "1px dashed #bbf7d0",
-            padding: "1.5rem 1.25rem",
-            borderRadius: "12px",
-            textAlign: "center",
-            position: "relative"
+            width: "120px", height: "120px", borderRadius: "50%",
+            background: "hsl(var(--primary) / 0.05)",
+            border: "2px dashed hsl(var(--primary) / 0.25)",
+            display: "flex", alignItems: "center", justifyContent: "center"
           }}>
-            <p style={{ fontSize: "1.05rem", fontWeight: 700, color: "#166534", lineHeight: 1.45, fontStyle: "italic" }}>
-              “ {affirmations[affirmationIdx]} ”
-            </p>
+            <div style={{
+              width: "80px", height: "80px", borderRadius: "50%",
+              background: "linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.8))",
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+              color: "white", fontWeight: 700, fontSize: "0.8rem",
+              transition: "transform 1s ease-in-out",
+              transform: getBreatheScale()
+            }}>
+              {breatheActive ? (
+                <>
+                  <span style={{ fontSize: "0.65rem", opacity: 0.9 }}>{breatheState.phase.split(" ")[0]}</span>
+                  <span style={{ fontSize: "1.2rem", fontWeight: 800 }}>{breatheState.seconds}s</span>
+                </>
+              ) : (
+                <span style={{ fontSize: "0.95rem" }}>Ready</span>
+              )}
+            </div>
           </div>
 
           <button
-            className="btn btn-secondary"
-            onClick={() => setAffirmationIdx((prev) => (prev + 1) % affirmations.length)}
-            style={{ alignSelf: "center", fontSize: "0.82rem", padding: "0.45rem 1rem" }}
+            className={`btn ${breatheActive ? "btn-secondary" : "btn-primary"}`}
+            onClick={() => setBreatheActive(!breatheActive)}
+            style={{ width: "160px", padding: "0.45rem", fontSize: "0.8rem" }}
           >
-            🔄 Shuffle Affirmation
+            {breatheActive ? "Stop Breathing" : "Begin Breathing"}
           </button>
         </div>
       );
     }
 
-    // 3. Motivational Booster
-    if (activeFocus === "Stay Motivated") {
-      const motivationalTips = [
-        "Focus on process: Today's study goal is your only metric. The final rank is a compound effect of daily blocks.",
-        "Micro milestones: Don't look at the entire massive syllabus. Just write down 3 clear tasks for the next 2 hours.",
-        "Accept difficulties: Struggling on a tough MCQ now means you won't make that exact mistake on the final exam day.",
-        "Prep a small reward: Schedule a minor 10-minute treat (music, walking, hot beverage) right after your study slot."
+    // ✨ Confidence Affirmation Card
+    if (activeFocus === "Build Confidence") {
+      const confidenceAffirmations = [
+        "I trust my exam preparation and conceptual understanding completely.",
+        "My ultimate value as a human is not bound to a grade. I choose to put effort today.",
+        "I am capable, resilient, and ready to navigate complex conceptual blocks.",
+        "Mock tests highlight structural review areas. I grow stronger through failures.",
+        "I choose to compete with my scores of yesterday, ignoring comparison stressors.",
+        "I feel my concentration and calm confidence rising with every topic I complete."
       ];
 
       return (
-        <div className="glass-panel" style={{ borderLeft: "5px solid #d97706", display: "flex", flexDirection: "column", gap: "1.25rem" }}>
-          <div>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginBottom: "0.25rem" }}>
-              🚀 Motivation Booster Tips
-            </h3>
-            <p style={{ fontSize: "0.85rem", color: "#64748b" }}>
-              High-energy advice to keep you consistent when exhaustion or burn-out flags rise.
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.25rem", margin: "0.5rem 0" }}>
+          <div style={{
+            background: "linear-gradient(135deg, #f0fdf4, #f6fef9)",
+            border: "1px dashed #bbf7d0",
+            padding: "1.25rem 1rem",
+            borderRadius: "var(--radius-md)",
+            textAlign: "center",
+            width: "100%"
+          }}>
+            <p style={{ fontSize: "1rem", fontWeight: 700, color: "#166534", lineHeight: 1.4, fontStyle: "italic" }}>
+              “ {confidenceAffirmations[affirmationIdx]} ”
             </p>
           </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "0.75rem" }}>
-            {motivationalTips.map((tip, idx) => (
-              <div key={idx} style={{
-                display: "flex", gap: "0.75rem", alignItems: "flex-start",
-                padding: "0.75rem", background: idx % 2 === 0 ? "#fffbeb" : "#fafaf9",
-                borderRadius: "8px", border: "1px solid #fef3c7"
-              }}>
-                <span style={{ fontSize: "1rem" }}>⚡</span>
-                <p style={{ fontSize: "0.85rem", color: "#92400e", lineHeight: 1.4 }}>{tip}</p>
-              </div>
-            ))}
-          </div>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setAffirmationIdx((prev) => (prev + 1) % confidenceAffirmations.length)}
+            style={{ padding: "0.45rem 1rem", fontSize: "0.8rem" }}
+          >
+            🔄 Next Affirmation
+          </button>
         </div>
       );
     }
 
-    // 4. Sleep Routine Card (Low Sleep alerts automatically redirect here)
+    // 🛌 Sleep Wind-down Checklist
     if (activeFocus === "Improve Sleep" || hasSleepDeficit) {
       const routineItems = [
-        "Power off screens: Melatonin secretion is delayed by blue light. Put devices away 45m before bed.",
-        "List tomorrow's tasks: Write study targets on paper so your brain doesn't loop on unfinished work.",
-        "Bed Equal Breathing: Spend 3 minutes doing Equal Inhale/Exhale (4s-4s) in bed to trigger slow heartbeat.",
-        "Physical prep: Sip warm water or ensure the room is completely dark and ventilated."
+        "Device power down: Lock away phones and laptops 45m before bed.",
+        "Write study lists: Dump remaining syllabus tasks on a notepad to clear loops.",
+        "Bed calming breathing: Do 3 minutes of 4-4 Equal breathing in your bed.",
+        "Melatonin prep: Keep your room cool, completely dark, and ventilated."
       ];
 
       return (
-        <div className="glass-panel" style={{ borderLeft: "5px solid #dc2626", display: "flex", flexDirection: "column", gap: "1.1rem" }}>
-          <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a" }}>
-                🛌 Sleep Recharge Wind-Down Routine
-              </h3>
-              {hasSleepDeficit && (
-                <span style={{ fontSize: "0.7rem", background: "#fef2f2", color: "#dc2626", padding: "0.15rem 0.5rem", borderRadius: "10px", fontWeight: 700 }}>
-                  Sleep Deficit Alert ({latestAssessment?.sleepHours}h)
-                </span>
-              )}
-            </div>
-            <p style={{ fontSize: "0.85rem", color: "#64748b", marginTop: "0.15rem" }}>
-              Suggested focus action to recover focus stamina. Tick items as you prepare for rest.
-            </p>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-            {routineItems.map((item, idx) => {
-              const isChecked = !!sleepChecks[idx];
-              return (
-                <label key={idx} style={{
-                  display: "flex", gap: "0.75rem", alignItems: "center",
-                  padding: "0.75rem", background: isChecked ? "#f8fafc" : "#ffffff",
-                  border: "1px solid var(--border-color)", borderRadius: "8px",
-                  cursor: "pointer", fontSize: "0.85rem", color: isChecked ? "#94a3b8" : "#374151"
-                }}>
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => setSleepChecks(prev => ({ ...prev, [idx]: !prev[idx] }))}
-                    style={{ width: "16px", height: "16px", cursor: "pointer" }}
-                  />
-                  <span style={{ textDecoration: isChecked ? "line-through" : "none" }}>{item}</span>
-                </label>
-              );
-            })}
-          </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", margin: "0.5rem 0" }}>
+          {routineItems.map((item, idx) => {
+            const isChecked = !!sleepChecks[idx];
+            return (
+              <label key={idx} style={{
+                display: "flex", gap: "0.75rem", alignItems: "center",
+                padding: "0.6rem 0.75rem", background: isChecked ? "var(--bg-accent)" : "#ffffff",
+                border: "1px solid var(--border-color)", borderRadius: "var(--radius-sm)",
+                cursor: "pointer", fontSize: "0.82rem", color: isChecked ? "#94a3b8" : "var(--text-primary)"
+              }}>
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => setSleepChecks(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                  style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                />
+                <span style={{ textDecoration: isChecked ? "line-through" : "none" }}>{item}</span>
+              </label>
+            );
+          })}
         </div>
       );
     }
 
-    // 5. Study Plan & Balance planner
+    // 🚀 Motivation Booster
+    if (activeFocus === "Stay Motivated") {
+      const quotes = [
+        "Success is the sum of small micro-milestones repeated day in and day out.",
+        "Your future self will thank you for opening the books and studying today.",
+        "Discipline is choosing between what you want now and what you want most.",
+        "Make today count. Even 1 productive hour is better than 0 hours."
+      ];
+
+      return (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", margin: "0.5rem 0" }}>
+          <div style={{
+            background: "linear-gradient(135deg, #fffbeb, #fafaf9)",
+            border: "1px dashed #fde68a",
+            padding: "1.25rem",
+            borderRadius: "var(--radius-md)",
+            textAlign: "center",
+            width: "100%"
+          }}>
+            <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#92400e", lineHeight: 1.45 }}>
+              💡 {quotes[affirmationIdx % quotes.length]}
+            </p>
+          </div>
+          <button
+            className="btn btn-secondary"
+            onClick={() => setAffirmationIdx(prev => prev + 1)}
+            style={{ padding: "0.45rem 1rem", fontSize: "0.8rem" }}
+          >
+            ✨ Draw Motivation Booster
+          </button>
+        </div>
+      );
+    }
+
+    // 📝 Balanced Study Plan
     if (activeFocus === "Maintain Balance") {
       const balanceItems = [
-        "Pomodoro blocks: Stick to 50 minutes of studying and 10 minutes away from your chair.",
+        "Pomodoro blocks: Spend 50 minutes studying, followed by 10 minutes rest.",
         "Afternoon walking: Take a 15-minute quick outdoor break to restore cognitive capacity.",
-        "Social check-in: Spend 15 minutes checking in with family or a friend on non-academic topics.",
+        "Social check-in: Spend 15 minutes checking in with family or a friend on prep topics.",
         "Physical decompression: Do simple shoulder rolls and neck stretches every 2 hours."
       ];
 
       return (
-        <div className="glass-panel" style={{ borderLeft: "5px solid #06b6d4", display: "flex", flexDirection: "column", gap: "1.1rem" }}>
-          <div>
-            <h3 style={{ fontSize: "1.1rem", fontWeight: 800, color: "#0f172a", marginBottom: "0.25rem" }}>
-              🌿 Balanced Daily Study Plan
-            </h3>
-            <p style={{ fontSize: "0.85rem", color: "#64748b" }}>
-              Protect yourself from over-study fatigue. Check off self-care items during today's study.
-            </p>
-          </div>
-
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
-            {balanceItems.map((item, idx) => {
-              const isChecked = !!balanceChecks[idx];
-              return (
-                <label key={idx} style={{
-                  display: "flex", gap: "0.75rem", alignItems: "center",
-                  padding: "0.75rem", background: isChecked ? "#f8fafc" : "#ffffff",
-                  border: "1px solid var(--border-color)", borderRadius: "8px",
-                  cursor: "pointer", fontSize: "0.85rem", color: isChecked ? "#94a3b8" : "#374151"
-                }}>
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => setBalanceChecks(prev => ({ ...prev, [idx]: !prev[idx] }))}
-                    style={{ width: "16px", height: "16px", cursor: "pointer" }}
-                  />
-                  <span style={{ textDecoration: isChecked ? "line-through" : "none" }}>{item}</span>
-                </label>
-              );
-            })}
-          </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem", margin: "0.5rem 0" }}>
+          {balanceItems.map((item, idx) => {
+            const isChecked = !!balanceChecks[idx];
+            return (
+              <label key={idx} style={{
+                display: "flex", gap: "0.75rem", alignItems: "center",
+                padding: "0.6rem 0.75rem", background: isChecked ? "var(--bg-accent)" : "#ffffff",
+                border: "1px solid var(--border-color)", borderRadius: "var(--radius-sm)",
+                cursor: "pointer", fontSize: "0.82rem", color: isChecked ? "#94a3b8" : "var(--text-primary)"
+              }}>
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => setBalanceChecks(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                  style={{ width: "16px", height: "16px", cursor: "pointer" }}
+                />
+                <span style={{ textDecoration: isChecked ? "line-through" : "none" }}>{item}</span>
+              </label>
+            );
+          })}
         </div>
       );
     }
@@ -535,13 +482,14 @@ export default function Dashboard({ profile, assessments, onNavigate }: Dashboar
         {/* Toggle Pills row */}
         <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap", borderBottom: "1px solid var(--border-color)", paddingBottom: "0.75rem" }}>
           {([
-            { val: "Better Focus", label: "🧘 Breathing (Focus/Anxiety)" },
+            { val: "Better Focus", label: "🧘 Focus (Breathing)" },
+            { val: "Reduce Anxiety", label: "🧘 Calm (Breathing)" },
             { val: "Build Confidence", label: "✨ Confidence (Affirmation)" },
             { val: "Stay Motivated", label: "🚀 Motivation (Booster)" },
             { val: "Improve Sleep", label: "🛌 Sleep Routine" },
-            { val: "Maintain Balance", label: "📝 Study Plan (Balance)" }
+            { val: "Maintain Balance", label: "🌿 Study Plan (Balance)" }
           ]).map((item) => {
-            const isSelected = activeFocus === item.val || (item.val === "Better Focus" && activeFocus === "Reduce Anxiety");
+            const isSelected = activeFocus === item.val;
             return (
               <button
                 key={item.val}
@@ -561,7 +509,65 @@ export default function Dashboard({ profile, assessments, onNavigate }: Dashboar
           })}
         </div>
 
-        {renderFocusActionCard()}
+        {/* Goal Recommendation Engine Outputs */}
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "1.5rem" }}>
+          {/* Left Block: recommendation list & score index */}
+          <div className="glass-panel" style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+              <div style={{
+                width: "60px", height: "60px", borderRadius: "50%",
+                border: `5px solid ${getMetricColor(recommendation.scoreValue)}`,
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0
+              }}>
+                <span style={{ fontSize: "1.1rem", fontWeight: 900, color: getMetricColor(recommendation.scoreValue) }}>
+                  {recommendation.scoreValue}%
+                </span>
+              </div>
+              <div>
+                <span style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: 700, textTransform: "uppercase" }}>{recommendation.scoreLabel}</span>
+                <h4 style={{ fontSize: "1.1rem", fontWeight: 800, margin: 0 }}>{activeFocus}</h4>
+              </div>
+            </div>
+
+            <div>
+              <h4 style={{ fontSize: "0.85rem", fontWeight: 700, color: "#64748b", marginBottom: "0.4rem" }}>📋 Actions & Suggestions:</h4>
+              <ul style={{ paddingLeft: "1.2rem", fontSize: "0.82rem", color: "#475569", display: "flex", flexDirection: "column", gap: "0.35rem" }}>
+                {recommendation.suggestions.map((suggestion, sIdx) => (
+                  <li key={sIdx}>{suggestion}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div style={{ background: "var(--bg-accent)", padding: "0.85rem", borderRadius: "8px", borderLeft: "3px solid hsl(var(--primary))" }}>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "hsl(var(--primary))", display: "block", marginBottom: "0.25rem" }}>🧠 AI Recommendation Insight:</span>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                {recommendation.aiInsights.map((insight, iIdx) => (
+                  <p key={iIdx} style={{ fontSize: "0.78rem", color: "#475569", lineHeight: 1.35 }}>{insight}</p>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <span style={{ fontSize: "0.75rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.4rem" }}>⚡ Quick Action Redirects:</span>
+              <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+                {recommendation.quickActions.map((action) => (
+                  <button
+                    key={action.actionKey}
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => onNavigate(action.actionKey)}
+                    style={{ flexGrow: 1, padding: "0.4rem", fontSize: "0.75rem" }}
+                  >
+                    <span>{action.icon}</span> {action.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Right Block: Dynamic Interactive Exercise Tool */}
+          {renderActiveWidget()}
+        </div>
       </div>
 
       {/* ── Today's Snapshot (if completed) ── */}

@@ -6,22 +6,40 @@ import { ExamSettings, getMockAssessments } from "./utils/wellbeing";
 import Onboarding, { StudentProfile } from "./components/Onboarding";
 import Dashboard from "./components/Dashboard";
 import WellnessAssessment from "./components/WellnessAssessment";
+import InstantRelief from "./components/InstantRelief";
 import Analytics from "./components/Analytics";
 import CopingTools from "./components/CopingTools";
 import ZenBuddy from "./components/ZenBuddy";
 import Settings from "./components/Settings";
+import { GoalType } from "./utils/goalEngine";
 
-type TabType = "dashboard" | "tracker" | "analytics" | "tools" | "buddy" | "settings";
+type TabType = "dashboard" | "tracker" | "relief" | "analytics" | "tools" | "buddy" | "settings";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabType>("dashboard");
   const [assessments, setAssessments] = useState<FirebaseAssessmentEntry[]>([]);
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
 
-  // Load profile and assessments on client mount
+  // Load profile, assessments, and theme on client mount
   useEffect(() => {
     const init = async () => {
+      // Theme setting loading
+      try {
+        const storedTheme = localStorage.getItem("mindtrack_theme") as "light" | "dark";
+        if (storedTheme) {
+          setTheme(storedTheme);
+          if (storedTheme === "dark") {
+            document.documentElement.classList.add("dark");
+          } else {
+            document.documentElement.classList.remove("dark");
+          }
+        }
+      } catch (e) {
+        console.warn("Theme load failed", e);
+      }
+
       try {
         const storedProfile = localStorage.getItem("mindtrack_profile");
         if (storedProfile) {
@@ -43,6 +61,17 @@ export default function Home() {
     };
     init();
   }, []);
+
+  const handleToggleTheme = () => {
+    const nextTheme = theme === "light" ? "dark" : "light";
+    setTheme(nextTheme);
+    localStorage.setItem("mindtrack_theme", nextTheme);
+    if (nextTheme === "dark") {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
+  };
 
   const handleOnboardingComplete = (newProfile: StudentProfile) => {
     setProfile(newProfile);
@@ -103,6 +132,7 @@ export default function Home() {
     const map: Record<TabType, string> = {
       dashboard: "Zen Center",
       tracker: "Daily Wellness Survey",
+      relief: "Instant Relief",
       analytics: "Insights",
       tools: "Coping Toolbox",
       buddy: "ZenBuddy Counselor",
@@ -122,6 +152,15 @@ export default function Home() {
             latestSnapshot={assessments.length > 0
               ? [...assessments].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0]
               : null}
+          />
+        );
+      case "relief":
+        return (
+          <InstantRelief
+            profile={profile}
+            assessments={assessments}
+            onNavigate={(t) => setActiveTab(t as TabType)}
+            onUpdateGoal={(g) => handleUpdateProfile({ ...profile, mainChallenge: g })}
           />
         );
       case "analytics":
@@ -152,6 +191,10 @@ export default function Home() {
     {
       tab: "tracker", label: "Daily Survey",
       icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" /></svg>
+    },
+    {
+      tab: "relief", label: "Instant Relief",
+      icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>
     },
     {
       tab: "analytics", label: "Insights",
@@ -225,7 +268,14 @@ export default function Home() {
           </nav>
         </div>
 
-        <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "0.85rem" }}>
+        <div style={{ borderTop: "1px solid var(--border-color)", paddingTop: "0.85rem", display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+          <button
+            onClick={handleToggleTheme}
+            className="btn btn-secondary"
+            style={{ width: "100%", padding: "0.45rem", fontSize: "0.8rem", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.35rem" }}
+          >
+            {theme === "light" ? "🌙 Dark Mode" : "☀️ Light Mode"}
+          </button>
           <p style={{ fontSize: "0.72rem", color: "#94a3b8" }}>© MindTrack 2026 · Private local data</p>
         </div>
       </aside>
@@ -247,6 +297,15 @@ export default function Home() {
             <h2 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#0f172a" }}>{getPageTitle()}</h2>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            {/* Theme Toggle for Mobile/Header */}
+            <button
+              onClick={handleToggleTheme}
+              className="btn btn-secondary"
+              style={{ padding: "0.4rem 0.6rem", fontSize: "0.8rem", display: "flex", alignItems: "center", justifyContent: "center" }}
+              aria-label="Toggle dark mode theme"
+            >
+              {theme === "light" ? "🌙" : "☀️"}
+            </button>
             {assessments.length > 0 && (
               <span style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 500 }} className="desktop-only">
                 {assessments.length} log{assessments.length !== 1 ? "s" : ""} saved
@@ -273,14 +332,15 @@ export default function Home() {
             key={tab}
             className={`bottom-nav-link ${activeTab === tab ? "active" : ""}`}
             onClick={() => setActiveTab(tab)}
+            style={{ position: "relative" }}
           >
             {icon}
-            <span style={{ fontSize: "0.6rem", marginTop: "0.2rem" }}>{label.split(" ")[0]}</span>
+            <span style={{ fontSize: "0.58rem", marginTop: "0.2rem" }}>{label.split(" ")[0]}</span>
             {tab === "tracker" && !assessments.some(a => a.date === new Date().toISOString().split("T")[0]) && (
               <span style={{
                 position: "absolute",
-                top: "6px",
-                right: "30%",
+                top: "4px",
+                right: "32%",
                 width: "6px",
                 height: "6px",
                 background: "#f59e0b",
