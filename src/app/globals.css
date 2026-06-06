@@ -603,9 +603,26 @@ input:focus, textarea:focus, select:focus {
   color: var(--text-secondary) !important;
 }
 
+.dark .chat-messages {
+  background: var(--bg-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
 .dark .chat-bubble-buddy {
   background-color: #1e293b !important;
   border-color: #334155 !important;
+  color: var(--text-primary) !important;
 }
+
+.dark .chat-bubble-user {
+  background-color: hsl(var(--primary)) !important;
+  color: white !important;
+}
+
+.dark .chat-bubble-user p,
+.dark .chat-bubble-user strong {
+  color: white !important;
+}
+
 
 

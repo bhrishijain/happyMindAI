@@ -215,14 +215,14 @@ export default function Dashboard({ profile, assessments, onNavigate }: Dashboar
       return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1.25rem", margin: "0.5rem 0" }}>
           <div style={{
-            background: "linear-gradient(135deg, #f0fdf4, #f6fef9)",
-            border: "1px dashed #bbf7d0",
+            background: "hsl(var(--success) / 0.05)",
+            border: "1px dashed hsl(var(--success) / 0.4)",
             padding: "1.25rem 1rem",
             borderRadius: "var(--radius-md)",
             textAlign: "center",
             width: "100%"
           }}>
-            <p style={{ fontSize: "1rem", fontWeight: 700, color: "#166534", lineHeight: 1.4, fontStyle: "italic" }}>
+            <p style={{ fontSize: "1rem", fontWeight: 700, color: "hsl(var(--success))", lineHeight: 1.4, fontStyle: "italic" }}>
               “ {confidenceAffirmations[affirmationIdx]} ”
             </p>
           </div>
@@ -253,7 +253,7 @@ export default function Dashboard({ profile, assessments, onNavigate }: Dashboar
             return (
               <label key={idx} style={{
                 display: "flex", gap: "0.75rem", alignItems: "center",
-                padding: "0.6rem 0.75rem", background: isChecked ? "var(--bg-accent)" : "#ffffff",
+                padding: "0.6rem 0.75rem", background: isChecked ? "var(--bg-accent)" : "var(--bg-card)",
                 border: "1px solid var(--border-color)", borderRadius: "var(--radius-sm)",
                 cursor: "pointer", fontSize: "0.82rem", color: isChecked ? "#94a3b8" : "var(--text-primary)"
               }}>
@@ -283,14 +283,14 @@ export default function Dashboard({ profile, assessments, onNavigate }: Dashboar
       return (
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", margin: "0.5rem 0" }}>
           <div style={{
-            background: "linear-gradient(135deg, #fffbeb, #fafaf9)",
-            border: "1px dashed #fde68a",
+            background: "hsl(var(--warning) / 0.05)",
+            border: "1px dashed hsl(var(--warning) / 0.4)",
             padding: "1.25rem",
             borderRadius: "var(--radius-md)",
             textAlign: "center",
             width: "100%"
           }}>
-            <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "#92400e", lineHeight: 1.45 }}>
+            <p style={{ fontSize: "0.95rem", fontWeight: 700, color: "hsl(var(--warning))", lineHeight: 1.45 }}>
               💡 {quotes[affirmationIdx % quotes.length]}
             </p>
           </div>
@@ -321,7 +321,7 @@ export default function Dashboard({ profile, assessments, onNavigate }: Dashboar
             return (
               <label key={idx} style={{
                 display: "flex", gap: "0.75rem", alignItems: "center",
-                padding: "0.6rem 0.75rem", background: isChecked ? "var(--bg-accent)" : "#ffffff",
+                padding: "0.6rem 0.75rem", background: isChecked ? "var(--bg-accent)" : "var(--bg-card)",
                 border: "1px solid var(--border-color)", borderRadius: "var(--radius-sm)",
                 cursor: "pointer", fontSize: "0.82rem", color: isChecked ? "#94a3b8" : "var(--text-primary)"
               }}>
